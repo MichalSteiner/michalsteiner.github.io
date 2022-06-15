@@ -1,8 +1,8 @@
-<html>
-<body>
+<?php
+  // The global $_POST variable allows you to access the data sent with the POST method by name
+  // To access the data sent with the GET method, you can use $_GET
+  $say = htmlspecialchars($_POST['name']);
+  $to  = htmlspecialchars($_POST['email']);
 
-Welcome <?php echo $_POST["name"]; ?><br>
-Your email address is: <?php echo $_POST["email"]; ?>
-
-</body>
-</html>
+  echo  $say, ' ', $to;
+?>

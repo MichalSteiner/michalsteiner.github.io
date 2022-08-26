@@ -1,0 +1,551 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+
+	window.onkeydown = function(e) {
+    var elem = e.target.nodename;
+    if( elem !== 'TEXTAREA' && elem != 'INPUT' ) {
+        return !(e.keyCode == 32);
+    }
+};
+<html>
+	<head>
+		<title>Michal Steiner</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Space Invaders</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">About me</a></li>
+							<li class="active"><a href="publications.html">Publications</a></li>
+							<li><a href="cv.html">CV</a></li>
+							<li><a href="contact_me.html">Contact me</a></li>
+							<li><a href="space_invaders.html">Space Invaders</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://twitter.com/SteinerMichalGe" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+							<li><a href="https://github.com/Chamaeleontis" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">June 15, 2022</span>
+									<h1>Publications</h1>
+									<p>
+										
+										<!DOCTYPE html>
+<html lang="en">
+  <head><title>Space Invaders</title></head>
+  <body>
+    <h1>Space Invaders</h1>    
+    <!-- Game canvas -->
+    <canvas id="canvas" width="800" height="600"></canvas>    
+    <!-- Javascript game logic -->
+    <script>
+
+      // Defines a general class used to specify game objects.
+      class GameObject {
+        constructor(x, y, width, height, color) {
+          // Define the object's position
+          this.x = x;
+          this.y = y;
+
+          // Define the object's size
+          this.width = width;
+          this.height = height;
+
+          // Define the object's color
+          this.color = color;
+        }
+
+        // Draw the object on the canvas
+        draw(ctx) {
+          ctx.fillStyle = this.color;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+
+        // Update the object's position
+        update(dx, dy) {
+          this.x += dx;
+          this.y += dy;
+        }
+
+        // Check if the object is colliding with another object
+        collidesWith(obj) {
+          return (this.x < obj.x + obj.width
+               && this.x + this.width > obj.x
+               && this.y < obj.y + obj.height 
+               && this.y + this.height > obj.y);
+        }
+      }
+
+      // The bullet class defines the properties and behavior of bullets.
+      class Bullet extends GameObject {
+        constructor(x, y, width, height, color, dy) {
+          super(x, y, width, height, color);
+          // Set the bullet's y direction.
+          this.dy = dy;
+        }
+        
+        update(x, y) {
+          this.y += this.dy; 
+        }
+      }
+
+      // The spaceship class defines the general properties and behavior of the player and enemies.
+      class SpaceShip extends GameObject {
+        constructor(x, y, width, height, color, canvasHeight) {
+          super(x, y, width, height, color);
+          // Set canvas height.
+          this.canvasHeight = canvasHeight;
+          // Set the spaceship's bullet size.
+          this.bulletWidth = 4;
+          this.bulletHeight = 8;
+          // Set the spaceship's bullet color.
+          this.bulletColor = "#ff7800";
+          // Bullets fired by the spaceship
+          this.bullets = [];
+        }
+
+        // Override the draw method to also draw the spaceship's bullets.
+        draw(ctx) {
+          super.draw(ctx);
+          // Draw the spaceship's bullets.
+          for (var i = 0; i < this.bullets.length; i++) {
+            this.bullets[i].draw(ctx);
+            this.bullets[i].update(0, 0);
+
+            // Check if the bullet is out of bounds.
+            if (this.bullets[i].y < 0 || this.bullets[i].y > this.canvasHeight) {
+              // Remove the bullet from the array.
+              this.bullets.splice(i, 1);
+            }
+          }
+        }
+        
+        // A method used to fire bullets from a spaceship
+        shoot(dy) {
+          this.bullets.push(new Bullet(
+            this.x + this.width / 2 - this.bulletWidth / 2,
+            this.y - this.bulletHeight,
+            this.bulletWidth,
+            this.bulletHeight,
+            this.bulletColor,
+            dy
+          ));
+        }
+      }
+      
+      // The Player class defines the properties and behavior of the player.
+      class Player extends SpaceShip {
+        constructor(x, y, width, height, color, canvasHeight, canvasWidth) {
+          super(x, y, width, height, color, canvasHeight);
+          this.canvasWidth = canvasWidth;
+        }
+
+        // Update the player's position
+        update(dx, dy) {
+          super.update(dx, dy);
+
+          // Keep the player within the canvas
+          if (this.x < 0) {
+            this.x = 0;
+          } else if (this.x + this.width > this.canvasWidth) {
+            this.x = this.canvasWidth - this.width;
+          }
+        }
+      }
+
+      // The Asteroid class defines the properties and behavior of the asteroids.
+      class Asteroid {
+        constructor(x, y, width, height, color, noParts) {
+          // Set an empty array for asteroid parts.
+          this.parts = [];
+          // Create the asteroid's parts.
+          for (var i = 0; i < noParts; i++) {
+            for (var j = 0; j < noParts; j++) {
+              this.parts.push(new GameObject(
+                x + i * width,
+                y + j * height,
+                width,
+                height,
+                color
+              ));
+            }
+          }
+        }
+            
+        // Draw the asteroid on the canvas.
+        draw(ctx) {
+          for (var i = 0; i < this.parts.length; i++) {
+            this.parts[i].draw(ctx);
+          }
+        }
+
+        // Check if the asteroid is colliding with another object.
+        collidesWith(obj) {
+          for (var i = 0; i < this.parts.length; i++) {
+            if (this.parts[i].collidesWith(obj)) {
+              return true;
+            }
+          }
+          return false;
+        }
+
+        // Remove sub object on collide.
+        removeOnCollide(obj) {
+          for (var i = 0; i < this.parts.length; i++) {
+            if (this.parts[i].collidesWith(obj)) {
+              this.parts.splice(i, 1);
+              break;
+            }
+          }
+        }
+      }
+      
+      // Defines an empty object used to specify game properties and behavior.
+      var game = {};
+      
+      // Define canvas and context
+      game.canvas = document.getElementById('canvas');
+      game.ctx = game.canvas.getContext('2d');
+      
+      // Define background color
+      game.backgroundColor = '#000000';
+
+      // Setup asteroids array
+      game.asteroidsParts = 8;
+      game.noOfAsteroids = 8;
+      game.asteroidsSpace = 85;
+
+      // Setup enemies
+      game.enemiesEachLine = 20;
+      game.enemyLines = 8;
+      game.enemySpace = 30;
+      game.enemyFireRate = 1000;
+      game.enemyFireTimer = 0;
+      game.enemyDirection = 1;
+      game.enemyStep = 5;
+      
+      // Defines a function to handle the game loop
+      game.update = function() {
+        // Draw canvas background
+        game.ctx.fillStyle = game.backgroundColor;
+        game.ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
+        
+        // Draw player
+        game.player.draw(game.ctx);
+
+        // Draw asteroids
+        for (var i = 0; i < game.asteroids.length; i++) {
+          game.asteroids[i].draw(game.ctx);
+        }
+
+        // Draw enemies
+        for (var i = 0; i < game.enemies.length; i++) {
+          game.enemies[i].draw(game.ctx);
+          game.enemies[i].update(game.enemyDirection, 0);
+        }
+
+        // Check if the player has destroyed all enemies
+        if (game.enemies.length == 0) {
+          // Reset the game
+          game.restart();
+        }
+
+        // Check if the enemies are out of bounds.
+        if (game.enemyDirection == 1)
+        {
+          // Find the enemy closest to the right side of the screen
+          var closestToRightSideEnemy = game.enemies[0];
+          for (var i = 1; i < game.enemies.length; i++) {
+            if (game.enemies[i].x > closestToRightSideEnemy.x) {
+              closestToRightSideEnemy = game.enemies[i];
+            }
+          }
+
+          // Check if the enemy closest to the right side of 
+          // the screen has reached the right side of the screen.
+          if (closestToRightSideEnemy.x + 
+              closestToRightSideEnemy.width > game.canvas.width) {
+            // Reverse the direction of the enemies.
+            game.enemyDirection = -1;            
+            // Move the enemies down.
+            for (var i = 0; i < game.enemies.length; i++) {
+              game.enemies[i].update(0, game.enemyStep);
+            }
+          }          
+        }
+        else if (game.enemyDirection == -1)
+        {
+          // Find the enemy closest to the left side of the screen
+          var closestToLeftSideEnemy = game.enemies[0];
+          for (var i = 1; i < game.enemies.length; i++) {
+            if (game.enemies[i].x < closestToLeftSideEnemy.x) {
+              closestToLeftSideEnemy = game.enemies[i];
+            }
+          }
+
+          // Check if the enemy closest to the left side of 
+          // the screen has reached the left side of the screen.
+          if (closestToLeftSideEnemy.x < 0) {
+            // Reverse the direction of the enemies.
+            game.enemyDirection = 1;
+            // Move the enemies down.
+            for (var i = 0; i < game.enemies.length; i++) {
+              game.enemies[i].update(0, game.enemyStep);
+            }
+          }
+        }
+
+        // Enemy fire counter
+        game.enemyFireTimer += Math.random() * 10;
+        if (game.enemyFireTimer > game.enemyFireRate) {
+          game.enemyFireTimer = 0;
+          // Fire enemy bullet
+          game.enemies[Math.floor(Math.random() * game.enemies.length)].shoot(5);
+        }
+
+        // Check if player bullet collides with asteroid
+        for (var i = 0; i < game.player.bullets.length; i++) {
+          for (var j = 0; j < game.asteroids.length; j++) {
+            if (game.asteroids[j].collidesWith(game.player.bullets[i])) {
+              game.asteroids[j].removeOnCollide(game.player.bullets[i]);
+              game.player.bullets.splice(i, 1);
+              break;
+            }
+          }
+        }
+
+        // Check if enemy bullet collides with asteroid
+        for (var i = 0; i < game.enemies.length; i++) {
+          for (var j = 0; j < game.enemies[i].bullets.length; j++) {
+            for (var k = 0; k < game.asteroids.length; k++) {
+              if (game.asteroids[k].collidesWith(game.enemies[i].bullets[j])) {
+                game.asteroids[k].removeOnCollide(game.enemies[i].bullets[j]);
+                game.enemies[i].bullets.splice(j, 1);
+                break;
+              }
+            }
+          }
+        }
+
+        // Check if player bullet collides with enemy
+        for (var i = 0; i < game.player.bullets.length; i++) {
+          for (var j = 0; j < game.enemies.length; j++) {
+            if (game.enemies[j].collidesWith(game.player.bullets[i])) {
+              game.enemies.splice(j, 1);
+              game.player.bullets.splice(i, 1);
+              break;
+            }
+          }
+        }
+
+        // Check if enemy bullet collides with player
+        for (var i = 0; i < game.enemies.length; i++) {
+          for (var j = 0; j < game.enemies[i].bullets.length; j++) {
+            if (game.player.collidesWith(game.enemies[i].bullets[j])) {
+              // Reset the game
+              game.restart();
+              break;
+            }
+          }
+        }
+      
+        // Check if an enemy has reached the player's y position.
+        for (var i = 0; i < game.enemies.length; i++) {
+          if (game.enemies[i].y + game.enemies[i].height > game.player.y) {
+            game.restart();
+            break;
+          }
+        }
+      }
+      
+      // Defines a function to handle key events
+      game.keydown = function(e) {
+        // If the left arrow key is pressed, move the player left.
+        if (e.keyCode == 37 || e.keyCode == 65) {
+          game.player.update(-5, 0);
+        }
+        // If the right arrow key is pressed, move the player right.
+        else if (e.keyCode == 39 || e.keyCode == 68) {
+          game.player.update(5, 0);
+        }
+        // If the space bar is pressed, fire a bullet.
+        else if (e.keyCode == 32) {
+          game.player.shoot(-5);
+        }
+      }      
+      
+      // Defines a function to start the game loop
+      game.init = function() {
+        // Set the game loop
+        game.interval = setInterval(game.update, 1000 / 60);
+
+        // Setup player
+        game.player = new Player(
+          game.canvas.width / 2 - 50,
+          game.canvas.height - 50,
+          20,
+          20,
+          '#0099CC',
+          game.canvas.width
+        );
+
+        // Setup asteroids
+        game.asteroids = [];
+        for (var i = 0; i < game.noOfAsteroids; i++) {
+          game.asteroids.push(new Asteroid(
+            game.asteroidsSpace + i * game.asteroidsSpace,
+            game.canvas.height - 180,
+            5,
+            5,
+            '#ffffff',
+            game.asteroidsParts
+          ));
+        }
+
+        // Setup enemies
+        game.enemies = [];
+        for (var i = 0; i < game.enemyLines; i++) {
+          for (var j = 0; j < game.enemiesEachLine; j++) {
+            game.enemies.push(new SpaceShip(
+              game.enemySpace + j * game.enemySpace,
+              game.enemySpace + i * game.enemySpace,
+              20,
+              20,
+              '#FF0000'
+            ));
+          }
+        }
+      }
+
+      // Defines a function to stop the game loop
+      game.stop = function() {
+        clearInterval(game.interval);
+      }
+
+      // Defines a function to restart the game
+      game.restart = function() {
+        game.stop();
+        game.init();
+      }
+
+      // Start the game on window load
+      window.onload = game.init;
+
+      // Detect keydown events
+      window.onkeydown = game.keydown;
+    </script>
+  </body>
+</html>
+									</p>
+									<p>
+										Based on code by Nicolai B. Andersen, available from: <a href="https://gist.github.com/niiicolai/325c1f4f113569a3857f2ece01f5ba65">https://gist.github.com/niiicolai/325c1f4f113569a3857f2ece01f5ba65 </a>
+										Code based on article <a href="https://betterprogramming.pub/create-the-classic-space-invaders-game-af087786d63b">https://betterprogramming.pub/create-the-classic-space-invaders-game-af087786d63b</a>
+                                        </article>
+									</p>
+								</header>
+
+							</section>
+							
+							<!--
+							<section class="post">
+								<header class="major">
+									<span class="date">June 15, 2022</span>
+									<h3><a href="">Steiner et al. 2022</a></h3>
+									<p>
+									<iframe src= " paper_tldr/Steiner_et_al_2022_a.pdf#toolbar=0" width="100%" height="1500px">
+									</iframe>
+									</p>
+									
+								</header>
+								
+							</section>-->
+							
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<section>
+							<h2>Send me message:</h2>
+							<form method="post" action="https://formspree.io/f/mrgjddrv">
+								<div class="fields">
+									<div class="field">
+										<label for="name">Name</label>
+										<input type="text" name="name" id="name" />
+									</div>
+									<div class="field">
+										<label for="email">Your Email address (For reply)</label>
+										<input type="text" name="email" id="email" />
+									</div>
+									<div class="field">
+										<label for="message">Your message</label>
+										<textarea name="message" id="message" rows="3"></textarea>
+									</div>
+								</div>
+								<ul class="actions">
+									<li><input type="submit" value="Send Message" /></li>
+								</ul>
+							</form>
+							This form is managed through formspree.io, after filling the form your message will be mailed to me. You can also send me your mail directly, however the reply might be delayed if the mail falls into spam. 
+						</section>
+						<section class="split contact">
+							<section class="alt">
+								<h3>Address</h3>
+								<p>Observatoire Astronomique de l’Université de Genève<br />
+								Chemin Pegasi 51b, CH-1290 Versoix, Switzerland</p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p><a href="mailto:Michal.Steiner@unige.ch">Michal.Steiner@unige.ch</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="https://twitter.com/SteinerMichalGe" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+									<li><a href="https://github.com/Chamaeleontis" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,6 +1,12 @@
 <!DOCTYPE HTML>
 <!--
-	Massively by HTML5 UP
+	Massively by HTML    new_model = sp.Spectrum1D(
+        spectral_axis = model.spectral_axis,
+        flux = np.where(model.flux.value < (1- 0.05*np.nanmin(model.flux.value)), model.flux.value, 1) * u.dimensionless_unscaled,
+        uncertainty = model.uncertainty,
+        meta = model.meta,
+        mask = model.mask
+    )5 UP
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
@@ -23,7 +29,7 @@
 					<div id="intro">
 						<h1><span style="color:white; background-color:rgba(0,0,0,0.5);border-radius: 30px;">Michal Steiner</span></h1>
 						<h2><a href="mailto:Michal.Steiner@unige.ch"><span style="color:#F2B100;border-radius: 15px;background-color:rgba(142, 142, 142, 0.5);">Email: Michal.Steiner@unige.ch</span></a></h2>
-						<h3><span style="color:white; background-color:rgba(0,0,0,0.5);border-radius: 15px;"span>Assistant / Research & Teaching Assistant (PhD candidate) - 2nd year</span>
+						<h3><span style="color:white; background-color:rgba(0,0,0,0.5);border-radius: 15px;"span>Assistant / Research & Teaching Assistant (PhD candidate) - 3rd year</span>
 						<br />
 						<span style="color:white; background-color:rgba(0,0,0,0.5);border-radius: 15px;">
 						University of Geneva</span>
